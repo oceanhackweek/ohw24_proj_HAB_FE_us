@@ -9,6 +9,7 @@ import coiled
 from matplotlib.colors import LinearSegmentedColormap
 
 
+
 st.title('OceanHackWeek: Bloom and Gloom Dashboard')
 st.subheader('Application to showcase Algal Bloom Hyperspectral Data!')
 st.write('---')
