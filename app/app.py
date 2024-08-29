@@ -67,7 +67,7 @@ results = earthaccess.search_data(
     short_name="PACE_OCI_L3M_RRS_NRT",
     temporal=tspan,
     bounding_box=bbox,
-    granule_name="PACE_OCI.20240701.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT",
+    granule_name="PACE_OCI.20240701.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT.nc",
 )
 
 paths = earthaccess.open(results)
