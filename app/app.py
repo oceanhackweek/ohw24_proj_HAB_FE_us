@@ -16,9 +16,8 @@ st.write('---')
 
 with st.sidebar:
     st.header('Project Overview')
-    st.subheader('Participants')
-    st.write('Data Team: Phil, Farley, Ben')
-    st.write('App Team: Adelle, Adam, Kasandra')
+    st.subheader('Project Goal')
+    st.write("Use PACE data to create user-interactive visuals")
     st.subheader('Source Data')
     st.write('PACE OCI Level-3 Global Mapped Remote-Sensing Reflectance (RRS) - NRT Data, version 2.0, NASA Earthdata')
     st.write('---')
