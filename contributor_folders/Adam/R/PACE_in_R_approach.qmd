@@ -53,51 +53,14 @@ One way to explore available data in the browser is with the Earthdata:
 https://search.earthdata.nasa.gov 
 
 
-## Using python for S3 Granule Discovery
-
-Unfortunately, at the moment the dataset granule discovery functionality is only available with the python library `earthaccess`
-
-One way to take advantage of this would be to make a python code chunk, and use this library 
-to discover/query available dataset granules.
-
-```{python}
-#| eval: false
-
-# import earthaccess
-# 
-# # 1. Login
-# earthaccess.login(persist=True)
-# 
-# # 2. Search for Ocean Color Index Data
-# results = earthaccess.search_datasets(instrument="oci")
-# for item in results:
-#     summary = item.summary()
-#     print(summary["short-name"])
-
-```
-
-The URL's can be printed this way:
-
-```{python}
-#| eval: false
-
-# # Searching by short name for PACE chl
-# results = earthaccess.search_data(
-#     short_name="PACE_OCI_L3M_CHL_NRT"
-# )
-# 
-# # We can look at the urls
-# [result.data_links() for result in results]
-```
 
 
+# S3 Granule Discovery
 
-## Using R for S3 Granule Discovery
+For R users the process of granule discovery and access is actively being developed. 
 
-For R users the process is very similar, but actively being developed. Presently,
-users must have a functioning install of the development version of `earthdatalogin`,
- which can be done with: `devtools::install_github("boettiger-lab/earthdatalogin")`
-
+Presently, users must have a functioning install of the development version of `earthdatalogin`, which can be done with: `devtools::install_github("boettiger-lab/earthdatalogin")` (this is not working
+for me.)
 
 Some additional conversations that I encountered while googling for: "earthdata access from R" that were helpful for broader context of the state of development and their challenges.
 
@@ -106,7 +69,7 @@ Some additional conversations that I encountered while googling for: "earthdata 
 [OpenScapes earthdata: python r handoff](https://nasa-openscapes.github.io/earthdata-cloud-cookbook/in-development/earthdata-python-r-handoff.html)
 
 
-# Constructing URLs & Opening Granules in R
+## Granule Discovery in R
 
 The "easiest" way (if its working) to find+open the data woulb be to use `earthdatalogin` in a similar way to `earthaccess` to find search and discover, then take that information over to R.
 
@@ -119,7 +82,6 @@ A helpful guide on how to do this can be found [here.](https://nmfs-opensci.gith
 ```{r}
 #| label: edl_search_fun 
 #| eval: false
-
 
 # Why no edl_search in CRAN package?!?
 
@@ -258,11 +220,6 @@ results <- edl_search(
 results[1:3]
 ```
 
-
-### Granule Discovery in R
-
-Using python in an R tutorial also feels like cheating. So here is an attempt to avoid it.
-
 There exists an online paper trail detailing an old deprecated workflow using `httr`
  to hit the earthdata api and return amazon s3 information to access the data.
  
@@ -312,20 +269,46 @@ library(httr2)
 
 
 
+## Using python for S3 Granule Discovery
+
+Unfortunately, at the moment the dataset granule discovery functionality is more 
+built out and available with the python library `earthaccess`
+
+One way to take advantage of this would be to make a python code chunk, and use this library to discover/query available dataset granules.
+
+```{python}
+#| eval: false
+
+import earthaccess
+
+# 1. Login
+earthaccess.login(persist=True)
+
+# 2. Search for Ocean Color Index Data
+results = earthaccess.search_datasets(instrument="oci")
+for item in results:
+    summary = item.summary()
+    print(summary["short-name"])
 
 
-```{r}
-# Open URL
-url <- "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/HLSL30.020/HLS.L30.T56JKT.2023246T235950.v2.0/HLS.L30.T56JKT.2023246T235950.v2.0.SAA.tif"
-
-# PACE URL from search.earthdata
-url <- "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc"
-
-# Use terra to open it
-terra::rast(url)
-# Use ncdf4
-ncdf4::nc_open(url)
 ```
+
+The URL's can be printed this way:
+
+```{python}
+#| eval: false
+
+# Searching by short name for PACE chl
+results = earthaccess.search_data(
+    short_name="PACE_OCI_L3M_CHL_NRT"
+)
+
+# We can look at the urls
+[result.data_links() for result in results[0:3]]
+```
+
+
+Using python in an R tutorial also feels like cheating, but lets just move forward and make some plots...
 
 
 ### Opening Granules in R
@@ -333,5 +316,20 @@ ncdf4::nc_open(url)
 ```{r}
 
 ```
+
+
+
+```{r}
+# Open some url
+# PACE URL from search.earthdata
+url <- "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc"
+
+# Use terra to open it
+terra::rast(url)
+
+# Use ncdf4
+ncdf4::nc_open(url)
+```
+
 
 
