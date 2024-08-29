@@ -1,0 +1,8 @@
+streamlit
+pandas
+geopandas
+xarray
+earthaccess
+matplotlib
+numpy
+cmocean
