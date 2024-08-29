@@ -90,38 +90,24 @@ The URL's can be printed this way:
 # [result.data_links() for result in results]
 ```
 
-
-
 ## Using R for S3 Granule Discovery
 
-For R users the process is very similar, but actively being developed. Presently,
-users must have a functioning install of the development version of `earthdatalogin`,
- which can be done with: `devtools::install_github("boettiger-lab/earthdatalogin")`
+For R users the process is very similar, but actively being developed.
 
-
-Some additional conversations that I encountered while googling for: "earthdata access from R" that were helpful for broader context of the state of development and their challenges.
-
-[NMFS Open Science EDMW Workshop 3B](https://nmfs-opensci.github.io/EDMW-EarthData-Workshop-2024/tutorials/r/1-earthdatalogin.html)
+I found these helpful links when googling for: "earthdata access from R" that capture the challenges from a very recent past:
 
 [OpenScapes earthdata: python r handoff](https://nasa-openscapes.github.io/earthdata-cloud-cookbook/in-development/earthdata-python-r-handoff.html)
 
 
 # Constructing URLs & Opening Granules in R
 
-The "easiest" way (if its working) to find+open the data woulb be to use `earthdatalogin` in a similar way to `earthaccess` to find search and discover, then take that information over to R.
-
-Using the `earthdatalogin::edl_search()` function searches for s3 granules using
-the dataset short_name and for specific area and times.
+The "easiest" way to find+open the data woulb be to use `earthdatalogin` in a similar way to `earthaccess` to find search and discover, then take that information over to R.
 
 A helpful guide on how to do this can be found [here.](https://nmfs-opensci.github.io/EDMW-EarthData-Workshop-2024/tutorials/r/1-earthdatalogin.html)
 
-
+Search
 ```{r}
-#| label: edl_search_fun 
-#| eval: false
-
-
-# Why no edl_search in CRAN package?!?
+# Why no edl_search?!?
 
 #' Search for data products using the EarthData API
 #'
@@ -237,13 +223,17 @@ edl_search <- function(short_name = NULL,
 }
 
 
+
+
+
+
 ```
 
-In practice this should eventually look and work like this:
+
 
 ```{r}
-#| eval: false
 # devtools::install_github("boettiger-lab/earthdatalogin")
+
 
 short_name <- "PACE_OCI_L3M_CHL_NRT"
 tbox <- c("2023-01-16", "2020-12-16")
@@ -257,6 +247,7 @@ results <- edl_search(
 
 results[1:3]
 ```
+
 
 
 ### Granule Discovery in R
