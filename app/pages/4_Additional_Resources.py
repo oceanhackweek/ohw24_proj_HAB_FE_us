@@ -2,6 +2,7 @@ import streamlit as st
 import time
 import numpy as np
 
+
 st.set_page_config(page_title="Additional Resources", page_icon=":books:")
 
 st.markdown("# Additional Resources")

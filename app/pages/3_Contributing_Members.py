@@ -28,5 +28,5 @@ st.write("""
     - Eli Holmes
 """)
 
-image = Image.open('images/file.png')
+image = Image.open('app/images/groupAll.png')
 st.image(image)
