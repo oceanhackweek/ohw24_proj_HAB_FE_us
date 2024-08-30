@@ -1,0 +1,12 @@
+streamlit
+dask
+earthaccess
+matplotlib
+backports.tempfile
+numpy
+xarray
+pandas
+cmocean
+coiled
+datetime
+geopandas
