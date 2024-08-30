@@ -2,8 +2,8 @@ import streamlit as st
 import datetime
 
 st.title("Comparing PACE and Sentinel Data")
-st.subheader("description goes here")
-st.subheader("Contributing members: Ian and Rafael")
+st.markdown("<h4>description goes here</h4>", unsafe_allow_html=True)
+st.markdown("<h4>Contributing members: Ian and Rafael</h4>", unsafe_allow_html=True)
 st.write('---')
 
 # screenshot of 0-1 visualized and explanations

@@ -181,7 +181,7 @@ st.write('---')
 
 # create columns for hyperspectral plot for comparison between bloom and non-bloom days
 st.markdown("<h1 style='text-align: center;'>Bloom vs. No Bloom</h1>", unsafe_allow_html=True)
-image_spectra = Image.open('images/spectra_range.png')
+image_spectra = Image.open('app/images/spectra_range.png')
 st.image(image_spectra, use_column_width=True)
 col1a, col1b = st.columns([15, 15])
 
@@ -189,20 +189,20 @@ with col1a:
     st.markdown("<h5 style='text-align: center;'>Algal Bloom: August 16th, 2024</h5>", unsafe_allow_html=True)
 
     st.markdown("<h6 style='text-align: center;'>Hyperspectral Data</h6>", unsafe_allow_html=True)
-    image_bloom = Image.open('images/bloom.png')
+    image_bloom = Image.open('app/images/bloom.png')
     st.image(image_bloom, use_column_width=True)
     st.markdown("<h6 style='text-align: center;'>Chlorophyl Data</h6>", unsafe_allow_html=True)
-    image_chl_bloom = Image.open('images/chl_bloom.png')
+    image_chl_bloom = Image.open('app/images/chl_bloom.png')
     st.image(image_chl_bloom, use_column_width=True)
 
 with col1b:
     st.markdown("<h5 style='text-align: center;'>Non Algal Bloom: July 19th, 2024</h5>", unsafe_allow_html=True)
 
     st.markdown("<h6 style='text-align: center;'>Hyperspectral Data</h6>", unsafe_allow_html=True)
-    image_nobloom = Image.open('images/nobloom.png')
+    image_nobloom = Image.open('app/images/nobloom.png')
     st.image(image_nobloom, use_column_width=True)
     st.markdown("<h6 style='text-align: center;'>Chlorophyl Data</h6>", unsafe_allow_html=True)
-    image_chl_nobloom = Image.open('images/chl_nobloom.png')
+    image_chl_nobloom = Image.open('app/images/chl_nobloom.png')
     st.image(image_chl_nobloom, use_column_width=True)
 
 # commenting out code that runs chlorophyll plot to use screenshots instead for sake of time left on project
