@@ -1,0 +1,69 @@
+---
+title: "Earthdata API Practice with HTTR"
+format: 
+  html:
+    self-contained: true
+editor: visual
+---
+
+There exists [an online paper trail](https://urs.earthdata.nasa.gov/documentation/for_users/data_access/r) detailing an old deprecated workflow using `httr` to hit the earthdata api and return amazon s3 information to access the data.
+
+The original code is below:
+
+```{r}
+#| label: httr script
+#| eval: false
+
+# Set up R
+# You may need to install the httr package.
+# install.packages("httr")
+library(httr)
+
+netrc_path <- "/path/to/.netrc"
+cookie_path <- "/path/to/.urs_cookies"
+downloaded_file_path <- "/path/to/filename"
+
+# Before using the script
+#Set up your ~/.netrc file as listed here: https://wiki.earthdata.nasa.gov/display/EL/How+To+Access+Data+With+cURL+And+Wget
+set_config(config(followlocation=1,netrc=1,netrc_file=netrc_path,cookie=cookie_path,cookiefile=cookie_path,cookiejar=cookie_path))
+httr::GET(url = "https://disc2.gesdisc.eosdis.nasa.gov/data/TRMM_RT/TRMM_3B42RT_Daily.7/2000/03/3B42RT_Daily.20000301.7.nc4",
+                  write_disk(downloaded_file_path, overwrite = TRUE))
+```
+
+This code could likely be updated using the `httr2` package to provide similar functionality to `earthaccess`. This is not something I am skilled in so I did not get far.
+
+It also appears that the `httr` package was used within the [earthdatalogin package here](https://github.com/boettiger-lab/earthdatalogin/blob/81c9d7f521c415254534f13f6a1b4f6dc7e4a514/R/edl_search.R#L5) for the api access. Might be an oppurtunity to take advantage of the new package (if I understood how any of this was working).
+
+### Earthdata API
+
+Details on the earthdata api can be found [here](https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html#general-request-details)
+
+```{r}
+#| label: edl-search as httr2
+
+# This is the httr function used:
+# https://github.com/boettiger-lab/earthdatalogin/blob/81c9d7f521c415254534f13f6a1b4f6dc7e4a514/R/edl_search.R#L5
+
+
+#install.packages("httr2")
+library(httr2)
+
+# # Another S3 package that might be worth using:
+# install.packages("aws.s3")
+
+# This isn't targeted enough:
+# earthdata_granules_url <- "https://cmr.earthdata.nasa.gov/search/granules" # Need to be more targeted
+# "errors":["The CMR does not allow querying across granules in all collections...
+
+# What/how do I find the api url?
+earthdata_api <- "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public"
+eosdis_url <- "https://disc2.gesdisc.eosdis.nasa.gov/data"
+
+url <- "https://cmr.earthdata.nasa.gov/search/granules"
+resp <- httr::GET(url,  query = query, netrc_config)
+
+req <- request(earthdata_api) #%>% 
+  #req_dry_run()
+req
+```
+
