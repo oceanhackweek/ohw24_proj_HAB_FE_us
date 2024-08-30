@@ -1,17 +1,14 @@
 import streamlit as st
 import datetime
 
-st.title("Comparing PACE and Sentinel Data")
+st.title("Genus Distribution Validation")
 st.subheader("description goes here")
-st.subheader("Contributing members: Ian and Rafael")
+st.subheader("Contributing members: Gulce")
 st.write('---')
 
-# screenshot of 0-1 visualized and explanations
-# screenshot of anything else they want
-# datepicker to "pick date" for data
+
 
 with st.sidebar:
-    st.header("PACE vs Sentinel Data")
     st.write("----")
     select_dates = st.date_input(
         "Select a date to compare",

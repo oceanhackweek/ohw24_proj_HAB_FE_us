@@ -170,12 +170,12 @@ col1a, col1b = st.columns([15, 15])
 
 with col1a:
     st.markdown("<h5 style='text-align: center;'>Algal Bloom: August 16th, 2024</h5>", unsafe_allow_html=True)
-    image_bloom = Image.open('images/bloom.png')
+    image_bloom = Image.open('app/images/bloom.png')
     st.image(image_bloom, use_column_width=True)
 
 with col1b:
     st.markdown("<h5 style='text-align: center;'>Non Algal Bloom: July 19th, 2024</h5>", unsafe_allow_html=True)
-    image_nobloom = Image.open('images/nobloom.png')
+    image_nobloom = Image.open('app/images/nobloom.png')
     st.image(image_nobloom, use_column_width=True)
 
 # commenting out code that runs chlorophyll plot to use screenshots instead for sake of time left on project

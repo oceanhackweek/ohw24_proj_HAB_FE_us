@@ -13,6 +13,8 @@ st.write("""
     - PACE vs Sentinel Data Team
         - Ian
         - Rafael
+    - Genus Distribution Validation
+         - Gulce - Post doc researcher at the Cooperative Institute for Climate, Ocean, and Ecosystem Studies
 
 """)
 st.markdown("## Application Development Team")
