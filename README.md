@@ -45,3 +45,9 @@ or
 6. Run `streamlit run streamlit.py` or update to use your file name
    If you would like the app to update every time you save (this is good for debugging) run `streamlit run --server.runOnSave true streamlit.py`
 
+
+#### Instructions using Pixi:
+1. [Install Pixi](https://pixi.sh/latest/#installation)
+2. In your computer's terminal
+   a. `git clone <REPO_NAME>`
+   b. `pixi init`
