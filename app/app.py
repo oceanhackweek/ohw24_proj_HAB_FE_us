@@ -18,11 +18,10 @@ st.subheader('Application to showcase Algal Bloom and Harmful Algal Bloom Data!'
 st.write('---')
 
 with st.sidebar:
-    st.header('Project Overview')
-    st.subheader('Participants')
-    st.write('Data Team1: Ben, Farley, Phil, Gulce')
-    st.write('Data Team2: Ian, Rafael')
-    st.write('App Team: Adelle, Adam, Kasandra')
+    st.heder('Project Overview')
+
+    st.subheader('Project Goal')
+    st.write("Use PACE data to create user-interactive visuals")
     st.subheader('Source Data')
     st.write('PACE OCI Level-3 Global Mapped Remote-Sensing Reflectance (RRS) - NRT Data, version 2.0, NASA Earthdata')
     st.write('---')
@@ -79,6 +78,7 @@ results = earthaccess.search_data(
     spot_policy="spot_with_fallback",    # Use spot instances when available
     arm=True,                            # Use ARM-based instances
     cpu=1,                               # Use Single-core instances
+    granule_name="PACE_OCI.20240701.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT.nc",
 )
 def process(granule):
     # Use dask for lazy loading

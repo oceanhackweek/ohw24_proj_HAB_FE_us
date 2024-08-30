@@ -46,12 +46,11 @@ earthdatalogin::edl_netrc()
 
 ### URL Discovery
 
-Using [earthdatalogin]() we have established credential access. We're still missing the URL discovery funcitonality of [earthaccess]()
+Using [earthdatalogin](https://github.com/boettiger-lab/earthdatalogin) we have established credential access. We're still missing the URL discovery funcitonality of [earthaccess](https://github.com/nsidc/earthaccess)
 
 One way to explore available data in the browser is with the Earthdata:
 
 https://search.earthdata.nasa.gov 
-
 
 
 
@@ -78,134 +77,13 @@ the dataset short_name and for specific area and times.
 
 A helpful guide on how to do this can be found [here.](https://nmfs-opensci.github.io/EDMW-EarthData-Workshop-2024/tutorials/r/1-earthdatalogin.html)
 
+There are multiple keywords we can use to discover data from collections. The table below contains the short_name, concept_id, and doi for some collections we are interested in for the tutorials today. Each of these can be used to search for data or information related to the collection we are interested in.
 
-```{r}
-#| label: edl_search_fun 
-#| eval: false
-
-# Why no edl_search in CRAN package?!?
-
-#' Search for data products using the EarthData API
-#'
-#' **NOTE**: Use as a fallback method only! Users are strongly encouraged
-#'  to rely on the STAC endpoints for NASA EarthData, as shown in the
-#'  package vignettes.  STAC is a widely used metadata standard by both
-#'  NASA and many other providers, and can be searched using the feature-rich
-#'  `rstac` package.  STAC return items can be more easily parsed as well.
-#'
-#' @param short_name dataset short name e.g. ATL08
-#' @param version dataset version
-#' @param doi DOI for a dataset
-#' @param daac NSIDC or PODAAC
-#' @param provider particular to each DAAC, e.g. POCLOUD, LPDAAC etc.
-#' @param temporal c("yyyy-mm-dd", "yyyy-mm-dd")
-#' @param bounding_box c(lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
-#' @param page_size maximum number of results to return per query.
-#' @param ... additional query parameters
-#' @param recurse If a query returns more than page_size results, should
-#'   we make recursive calls to return all results?
-#' @param parse_results logical, default TRUE. Calls [edl_extract_urls()]
-#'  to determine url links to data objects.  Set to FALSE to return
-#'  the full API response object, but be wary of large object sizes
-#'  when search returns many results.
-#' @inheritParams edl_netrc
-#' @export
-#' @return A character vector of data URLs matching the search criteria,
-#' if `parse_results = TRUE` (default).  Otherwise, returns a response object
-#'  of the returned search information if `parse_results = FALSE`.
-#' @examplesIf interactive()
-#'
-#' items <- edl_search(short_name = "MUR-JPL-L4-GLOB-v4.1",
-#'                    temporal = c("2002-01-01", "2021-12-31"),
-#'                    recurse = TRUE,
-#'                    parse_urls = TRUE)
-#'
-#' urls <- edl_extract_urls(items)
-#'
-edl_search <- function(short_name = NULL,
-                       version = NULL,
-                       doi = NULL,
-                       daac = NULL,
-                       provider = NULL,
-                       temporal = NULL,
-                       bounding_box = NULL,
-                       page_size = 2000,
-                       recurse = TRUE,
-                       parse_results = TRUE,
-                       username = default("user"),
-                       password = default("password"),
-                       netrc_path = edl_netrc_path(),
-                       cookie_path = edl_cookie_path(),
-                       ...) {
-
-  #token <- earthdatalogin::edl_set_token(set_env_var = FALSE,
-  #                                       prompt_for_netrc = FALSE)
-
-
-  edl_netrc(username = username,
-            password = password,
-            netrc_path = netrc_path,
-            cookie_path = cookie_path,
-            cloud_config = FALSE)
-  netrc_config <-
-    httr::config(netrc = TRUE,
-                 netrc_file = netrc_path,
-                 cookiefile = cookie_path,
-                 cookiejar = cookie_path)
-
-  query <- list(short_name = short_name,
-                temporal = paste(as.character(temporal), collapse=","),
-                version = version,
-                doi = doi,
-                daac = daac,
-                provider = provider,
-                bounding_box = bounding_box,
-                page_size = page_size,
-                ...)
-  query <- purrr::compact(query)
-
-  url <- "https://cmr.earthdata.nasa.gov/search/granules"
-  resp <- httr::GET(url,  query = query, netrc_config)
-  httr::stop_for_status(resp)
-
-  entry <- httr::content(resp, "parsed")$feed$entry
-  resp_header <- httr::headers(resp)
-  continue <- resp_header[["cmr-search-after"]]
-  #i <- 1
-
-
-  if(recurse){
-    while(!is.null(continue)) {
-
-      resp <- httr::GET(url,
-                query = query,
-                netrc_config,
-                httr::add_headers("CMR-Search-After" = continue))
-
-      more_entries <- httr::content(resp, "parsed")$feed$entry
-      entry <- c(entry, more_entries)
-
-      resp_header <- httr::headers(resp)
-      continue <- resp_header[["cmr-search-after"]]
-
-    }
-  }
-
-  if (!parse_results) {
-    return(  structure(entry, class = "cmr_items") )
-  }
-
-  edl_extract_urls(entry)
-}
-
-
-```
 
 In practice this should eventually look and work like this:
 
 ```{r}
 #| eval: false
-# devtools::install_github("boettiger-lab/earthdatalogin")
 
 short_name <- "PACE_OCI_L3M_CHL_NRT"
 tbox <- c("2023-01-16", "2020-12-16")
@@ -221,7 +99,7 @@ results[1:3]
 ```
 
 There exists an online paper trail detailing an old deprecated workflow using `httr`
- to hit the earthdata api and return amazon s3 information to access the data.
+to hit the earthdata api and return amazon s3 information to access the data.
  
  https://urs.earthdata.nasa.gov/documentation/for_users/data_access/r 
  
@@ -257,11 +135,7 @@ https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html#general-request-
 ```{r}
 #install.packages("httr2")
 library(httr2)
-```
 
-
-
-```{r}
 # # Another S3 package:
 # install.packages("aws.s3")
 ```
@@ -311,24 +185,66 @@ results = earthaccess.search_data(
 Using python in an R tutorial also feels like cheating, but lets just move forward and make some plots...
 
 
-### Opening Granules in R
+### Opening/Downloading Granules in R
 
-```{r}
+If we have the https endpoints for a dataset/granule we can open them directly using familiar R methods appropriate for the datatype.
 
-```
-
-
+The following code can be used to open & explore Ocean Color Index Data PACE data.
 
 ```{r}
 # Open some url
 # PACE URL from search.earthdata
+
 url <- "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc"
+filepath <- here::here("data", "PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc")
 
-# Use terra to open it
-terra::rast(url)
 
+# Download the file
+utils::download.file(
+  url = url, 
+  destfile = filepath)
+
+
+
+#### Option 2: PACE OCI from github
+
+# # Here is a direct link to the hypercoast github
+# url <- "https://github.com/opengeos/datasets/releases/download/netcdf/PACE_OCI.20240423T184658.L2.OC_AOP.V1_0_0.NRT.nc"
+# 
+# # Download the file to a target location
+# filepath <- here::here("data/PACE_OCI.20240423T184658.L2.OC_AOP.V1_0_0.NRT.nc")
+# 
+# # Download the file
+# utils::download.file(
+#   url = url, 
+#   destfile = filepath)
+```
+
+
+
+### Terra
+
+```{r}
+#| eval: false
+
+# Data from tutorial
+url <- earthdatalogin::lpdacc_example_url()
+ras <- terra::rast(url)
+plot(ras)
+```
+
+
+```{r}
+# Use terra to open 
+oci_terra <- terra::rast(url)
+```
+
+
+### ncdf4
+
+```{r}
 # Use ncdf4
-ncdf4::nc_open(url)
+oci_nc <- ncdf4::nc_open(url)
 ```
 
 
