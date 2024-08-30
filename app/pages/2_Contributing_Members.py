@@ -4,11 +4,16 @@ from PIL import Image
 st.title("Contributing Members")
 st.write('---')
 
-st.markdown("## Data Team")
+st.markdown("## Data Teams")
 st.write("""
-    - Phil - PhD Candidate at the University of Southern California who studies the biogeochemistry of trace metals in the oceans and their influence on phytoplankton.
-    - Farley - Works in Marine Optics & Remote Sensing at Bigelow Labs.
-    - Ben - PhD Student at UMaine using oceanographic models to understand environmental impacts of floating offshore wind.
+    - Team 1
+        - Phil - PhD Candidate at the University of Southern California who studies the biogeochemistry of trace metals in the oceans and their influence on phytoplankton.
+        - Farley - Works in Marine Optics & Remote Sensing at Bigelow Labs.
+        - Ben - PhD Student at UMaine using oceanographic models to understand environmental impacts of floating offshore wind.
+    - PACE vs Sentinel Data Team
+        - Ian
+        - Rafael
+
 """)
 st.markdown("## Application Development Team")
 st.write("""
