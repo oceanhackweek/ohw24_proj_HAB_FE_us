@@ -1,0 +1,372 @@
+---
+title: "PACE with R, first Steps"
+author: "Adam Kemberling"
+url: "https://github.com/oceanhackweek"
+affiliation: "Gulf of Maine Research Institute"
+affiliation_url: "https://www.gmri.org"
+description: | 
+  A thinking-out-loud style walkthrough of finding & using PACE assets in R
+date: "Updated on: `r Sys.Date()`"
+format: 
+  html:
+    toc: true
+    self-contained: true
+execute: 
+  echo: true
+  warning: false
+  message: false
+  code-fold: true
+  comment: ""
+  fig.align: center
+---
+
+
+```{r}
+#| label: load general packages
+
+library(tidyverse)     # Data wrangling and ggplot
+library(rnaturalearth) # Shape/country/coastline shapefiles
+library(ncdf4)         # Netcdf opening and subsetting
+library(sf)            # spatial dataframes, for points/polygons etc.
+library(stars)         # spatial arrays, for gridded spatial information
+library(terra)         # Gridded data in R
+library(reticulate)    # Python use in R
+```
+
+# PACE Satellite Data with R
+
+This was originally meant to follow along trying to access PACE data looked like if you are just trying to google your way into locating it. 
+
+The target audience is users that may be comfortable with R and working with raster or Netcdf files, but has not used NASA/DAAC datasets or earthdata.
+
+## Setting up Earthdata ACCESS
+
+NASA PACE Satellite data is made accessible through the earthdata distribution platform powered by amazon AWS.
+
+This service requires, or is at-least made more smooth by setting up Earthdata Login Credentials.
+
+The [earthdatalogin package](https://github.com/boettiger-lab/earthdatalogin) can be used to login with credentials created on [NASA Earthdata](https://www.earthdata.nasa.gov/).
+
+This chunk of code will prompt you to enter username and password information on its first use, and then store this information securely in a hidden file `.netrc`.
+
+This file will then be checked silently to provide authorication info as you search and access earthdata information.
+
+```{r}
+# Accessing/storing earthdata credentials
+# install.packages("earthdatalogin")
+library(earthdatalogin)
+
+# Use edl_netrc to set up netrc credential file
+earthdatalogin::edl_netrc()
+```
+
+# URL Discovery
+
+One of the trickiest parts (in my experience) about working with these datasets is knowing where they can be accessed, how to search for these access points, and which methods or functionalities can be leveraged to work with the datasets efficiently.
+
+After this tricky bit is resolved, the workflows quickly begin to resemble familiar spatial data workflows that utilize local resources.
+
+## URL Discovery in the Browser
+
+The most accessible way to explore available NASA EarthData is in the browser using the Earthdata Search web interface:
+
+https://search.earthdata.nasa.gov
+
+Here, you can search for datasets using a number of criteria which is helpful if you aren't sure what you are looking for. I found this interface helpful for identifying the dataset "short_name" IDs that are needed when using the programmatic tools.
+
+## URL Discovery in R
+
+For R users the process of URL discovery and access is an area being actively being developed. I found it a little disorienting to search and find the data programmatically in R compared to the python experience.
+
+Presently, in order to search/discover using `earthdatalogin` users must have a functioning install of the development version, which can be done with: `devtools::install_github("boettiger-lab/earthdatalogin")` (this is not working for me within the jupyterhub.)
+
+The "easiest" way (if its working) to find+open the data woulb be to use `earthdatalogin` in a similar way to `earthaccess` to find search and discover, then take that information over to R.
+
+Using the `earthdatalogin::edl_search()` function searches for granule URLs using the dataset "short_name" and optionally for specific area and/or time frame.
+
+A helpful guide on how to do this can be found [here.](https://nmfs-opensci.github.io/EDMW-EarthData-Workshop-2024/tutorials/r/1-earthdatalogin.html)
+
+Some additional conversations that I encountered while googling for: "earthdata access from R" that were helpful for broader context of the state of development and their challenges.
+
+[NMFS Open Science EDMW Workshop 3B](https://nmfs-opensci.github.io/EDMW-EarthData-Workshop-2024/tutorials/r/1-earthdatalogin.html)
+
+[OpenScapes earthdata: python r handoff](https://nasa-openscapes.github.io/earthdata-cloud-cookbook/in-development/earthdata-python-r-handoff.html)
+
+In practice the process of discovery should eventually look and work like this:
+
+```{r}
+#| eval: false
+
+short_name <- "PACE_OCI_L3M_CHL_NRT"
+tbox <- c("2023-01-16", "2020-12-16")
+
+# Search:
+results <- earthdatalogin::edl_search(
+    short_name = short_name,
+    version = "4.1",
+    temporal = tbox
+)
+
+results[1:3]
+```
+
+The above does not presently work for me, so I did some digging around.
+
+
+## Using python for URL Discovery
+
+Unfortunately, at the moment programmatic (using code) dataset discovery functionality is more built out with the python library `earthaccess`
+
+One way to take advantage of this (if users are comfortable with a little python) would be to make a python code chunk, and use the `earthaccess` library to discover/query available datasets.
+
+```{python}
+#| eval: true
+
+# load python library
+import earthaccess
+
+# 1. Login
+# This step will check for .netrc file with stored credentials
+# Or it will prompt user for earthdata login information, and store them
+# This will work even if the .netrc is created via the R package
+earthaccess.login(persist=True)
+
+# 2. Search for Ocean Color Index Data
+oci_results = earthaccess.search_datasets(instrument="oci")
+
+# Print the short_names
+for item in oci_results:
+    summary = item.summary()
+    print(summary["short-name"])
+
+
+```
+
+The URL's associated with the search results from the above code chunk can be printed and and manually copied for use downstream. 
+
+Another option would be to store them in a python list in the working environment. This list can then be accessed in R code chunks for an easy handoff thanks to `reticulate`.
+
+```{python}
+#| eval: true
+
+# Searching again,
+# This time using by short name for PACE chl
+chl_results = earthaccess.search_data(
+  # PACE OCI Level-3 Global Mapped Chlorophyll (CHL)
+    short_name="PACE_OCI_L3M_CHL_NRT" 
+)
+
+# Take the URLs from the results and append them into a list:
+
+# Results structure not the same here, can't extract links w/o modifying
+# # A. Ocean Color
+# oci_result_links = []
+# for result in oci_results:
+#   oci_result_links.append(result.data_links())
+
+# B. Chlorophyll
+chl_result_links = []
+for result in chl_results:
+  chl_result_links.append(result.data_links())
+
+# List comprehension to print
+# [result.data_links() for result in results[0:3]]
+```
+
+Using python in an R tutorial feels a little like cheating, but at the end of the day its less about using one tool over the other, and more important to make progress and learn.
+
+Here is what that python to R hand off supported by the `reticulate` package looks like. Objects created/stored in the environment within python code chunks may be accessed via a list object `py`.
+
+**Note:** Be sure to load the `reticulate` library specifically in an R chunk somewhere above, or the `py` object won't appear in the environment.
+
+The following chunk of code selects subset of links that contained the "4km" string which will be used to testing below.
+
+```{r}
+
+# These are the result links from the above search
+
+# # A. Ocean Color Index
+# pace_oci_links <- py$oci_result_links %>% unlist()
+
+# B. Chlorophyll
+pace_chl_links <- py$chl_result_links %>% 
+  unlist()
+
+# Subset Chlorophyll by string detection to urls with "4km"
+pace_4km <- pace_chl_links[which(stringr::str_detect(pace_chl_links, "4km"))]
+#pace_4km[1]
+
+```
+
+
+## Download/Access Approaches
+
+Once we have URLs, the next step is either to download the data, or directly access it from the URL if it supports this. 
+
+Accessing them directly from these URLs with xarray or terra does not seem to work in this case for these resources. My understanding is that functionality is provided by OpenDap or similar services that are not present (yet).
+
+The following code chunk shows what I mean using one test URL.
+
+```{r}
+# Pick the first URL to use as a tester
+url <- pace_4km[1]
+print("Testing below with the following URL:")
+url
+```
+
+Using the above URL as a tester, we can see that  `ncdf4`, `terra`, and `stars` all throw an error of file not found:
+
+```{r}
+#| eval: false
+
+# This doesn't work, opening it directly with R ncdf4
+granule_test <- nc_open(url)
+
+# or this, using terra
+granule_test <- terra::rast(url, vsi = TRUE)
+
+# What about stars? also nope
+granule_test <- stars::read_stars(url)
+```
+
+What we can do instead is first download the whole file(s) locally for now.
+
+```{r}
+# The download.file function does work
+
+# Just provide it a filename and path to where to save it
+url <- pace_4km[1]
+filepath <- stringr::str_remove(url, "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/")
+filepath <- str_c(here::here("contributor_folders/Adam/data", filepath))
+
+# Download the file
+utils::download.file(
+  url = url, 
+  destfile = filepath)
+
+```
+
+As mentioned above, if we want to open and subset on the fly or "work in the cloud" we would need to find URLs that were supported by OpenDap or a similar service.
+
+An example of this kind of workflow can be seen [here with MUR SST data](https://nmfs-opensci.github.io/EDMW-EarthData-Workshop-2024/tutorials/r/1-earthdatalogin.html).
+
+For an example with the PACE data, it is possible (hard) to find OpenDap supported links if we look for the THREDDS catalogue. The OpenDap THREDDS catalogue for PACE Ocean Color Index is buried in here:
+https://oceandata.sci.gsfc.nasa.gov/opendap/PACE_OCI/contents.html
+
+The URLs within this catalogue are accessible via OpenDap, and should support direct access.
+
+The following code chunk uses one of these new links to test if we can open the connection with a handful of R packages. Of these different approaches only `ncdf4::nc_open()` will open [this test OpenDap link](http://oceandata.sci.gsfc.nasa.gov/opendap/PACE_OCI/L3SMI/2024/0301/PACE_OCI.20240301_20240331.L3m.MO.CHL.V2_0.chlor_a.0p1deg.NRT.nc) directly.
+
+```{r}
+#| eval: false
+dap_url_test <- "http://oceandata.sci.gsfc.nasa.gov/opendap/PACE_OCI/L3SMI/2024/0301/PACE_OCI.20240301_20240331.L3m.MO.CHL.V2_0.chlor_a.0p1deg.NRT.nc"
+
+
+# These processes do/not work
+test_rast <- nc_open(dap_url_test)           # yes
+test_rast <- terra::rast(dap_url_test)       # no
+test_rast <- stars::read_stars(dap_url_test) # no
+
+```
+
+
+# Downloading Datasets Programmatically in R
+
+In summary, once we have the URLs for resources we are interested in the next step from here is to download the data locally. The following code can be used to download URL's for chlorophyll and Ocean Color Index Data PACE data.
+
+```{r}
+#| eval: true
+
+# Open some url
+# PACE URL from search.earthdata
+url <- "https://obdaac-tea.earthdatacloud.nasa.gov/ob-cumulus-prod-public/PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc"
+
+filepath <- here::here("contributor_folders/Adam/data", "PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc")
+
+
+# Download the file
+utils::download.file(
+  url = url, 
+  destfile = filepath)
+
+```
+
+
+```{r}
+#| eval: true
+
+# Example 2: PACE OCI from github
+
+# Here is a direct link to the hypercoast github
+url <- "https://github.com/opengeos/datasets/releases/download/netcdf/PACE_OCI.20240423T184658.L2.OC_AOP.V1_0_0.NRT.nc"
+
+# Download the file to a target location
+filepath <- here::here("contributor_folders/Adam/data/PACE_OCI.20240423T184658.L2.OC_AOP.V1_0_0.NRT.nc")
+
+# Download the file
+utils::download.file(
+  url = url, 
+  destfile = filepath)
+```
+
+
+# Local PACE .netcdf File Exploration
+
+The following code works through playing with that or with PACE files that have been downloaded to local storage. To run the below code chunks the path to local resources needs to be adapted.
+
+
+#### TERRA
+
+One library that can be used for opening netcdf files or other gridded array data files is the terra package.
+
+```{r}
+# Open PACE OCI data with rast
+pace_oci <- terra::rast(here::here("contributor_folders/Adam/data/PACE_OCI.20240423T184658.L2.OC_AOP.V1_0_0.NRT.nc"))
+
+plot(pace_oci$aot_865)
+```
+
+#### STARS
+
+Another option is the STARS package. "stars" class objects can be easily plotted in ggplot along with `sf` polygons for layering which I find familiar and user-friendly.
+
+```{r}
+# Open PACE Chl-a data with rast
+
+# Level 3 Chlorophyll-A
+chl_st <- stars::read_stars(here::here("contributor_folders/Adam/data/PACE_OCI.20240826.L3m.DAY.CHL.V2_0.chlor_a.0p1deg.NRT.nc"))
+
+# # Level 2, stars dislikes loading these
+# oci_st <- stars::read_stars(here::here("contributor_folders/Adam/data/PACE_OCI.20240423T184658.L2.OC_AOP.V1_0_0.NRT.nc"))
+
+# Load some land mass polygons from rnaturalearth
+wrld_sf <- ne_countries(scale = "large", returnclass = "sf")
+
+# Higher resolution state boundaries:
+usa <- ne_states(country = "United States of America", returnclass = "sf")
+
+
+# Make a map
+ggplot() +
+  geom_stars(data = chl_st) + # Add stars layer
+  geom_sf(data = usa) + # add usa polygons
+  scale_fill_distiller(
+    palette = "Greens", 
+    na.value = "transparent", 
+    direction = 1,
+    limits = c(0, 75)) +
+  theme_bw() +
+  # Some bonus code for tweaking the color bar
+  guides(
+    fill = guide_colourbar(
+      title  = "Chlorophyll-A mg/m^3", 
+      title.position = "top", 
+      title.hjust = 0.5, 
+      title.theme = element_text(face = "bold"),
+      barwidth = unit(4.5, "cm"),
+      frame.colour = "black")) +
+  theme(legend.position = "bottom") +
+  coord_sf(xlim = c(-82, -50), ylim = c(26, 40)) +
+  labs(x = "Longitude", y = "Latitude")
+```
+

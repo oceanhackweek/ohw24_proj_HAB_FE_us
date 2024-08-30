@@ -34,9 +34,22 @@ with st.sidebar:
     # create date range picker
     selected_dates = st.date_input(
         'Select a Date Range for Hyperspectral Data',
-        value = (datetime.date(2024, 8, 16), datetime.date(2024, 8, 17)),
+        value = (datetime.date(2024, 8, 4), datetime.date(2024, 8, 8)),
         min_value = datetime.date(2024, 8, 1),
         max_value = datetime.date(2024, 8, 31),
+        format = "YYYY-MM-DD",
+        label_visibility = "visible"
+        )
+    # create sample date picker for Bloom v. No Bloom
+    comp_date_1 = st.date_input(
+        'Date for Bloom',
+        value = (datetime.date(2024, 8, 4)),
+        format = "YYYY-MM-DD",
+        label_visibility = "visible"
+        )
+    comp_date_2 = st.date_input(
+        'Date for No Bloom',
+        value = (datetime.date(2024, 7, 19)),
         format = "YYYY-MM-DD",
         label_visibility = "visible"
         )
@@ -164,19 +177,33 @@ def plot_3d_graph(wavelengths, y_indices, rrs_values):
 fig = plot_3d_graph(wavelengths, y_indices, rrs_values)
 # Show the plot in Streamlit
 st.pyplot(fig)
+st.write('---')
+
 # create columns for hyperspectral plot for comparison between bloom and non-bloom days
 st.markdown("<h1 style='text-align: center;'>Bloom vs. No Bloom</h1>", unsafe_allow_html=True)
+image_spectra = Image.open('images/spectra_range.png')
+st.image(image_spectra, use_column_width=True)
 col1a, col1b = st.columns([15, 15])
 
 with col1a:
     st.markdown("<h5 style='text-align: center;'>Algal Bloom: August 16th, 2024</h5>", unsafe_allow_html=True)
-    image_bloom = Image.open('app/images/bloom.png')
+
+    st.markdown("<h6 style='text-align: center;'>Hyperspectral Data</h6>", unsafe_allow_html=True)
+    image_bloom = Image.open('images/bloom.png')
     st.image(image_bloom, use_column_width=True)
+    st.markdown("<h6 style='text-align: center;'>Chlorophyl Data</h6>", unsafe_allow_html=True)
+    image_chl_bloom = Image.open('images/chl_bloom.png')
+    st.image(image_chl_bloom, use_column_width=True)
 
 with col1b:
     st.markdown("<h5 style='text-align: center;'>Non Algal Bloom: July 19th, 2024</h5>", unsafe_allow_html=True)
-    image_nobloom = Image.open('app/images/nobloom.png')
+
+    st.markdown("<h6 style='text-align: center;'>Hyperspectral Data</h6>", unsafe_allow_html=True)
+    image_nobloom = Image.open('images/nobloom.png')
     st.image(image_nobloom, use_column_width=True)
+    st.markdown("<h6 style='text-align: center;'>Chlorophyl Data</h6>", unsafe_allow_html=True)
+    image_chl_nobloom = Image.open('images/chl_nobloom.png')
+    st.image(image_chl_nobloom, use_column_width=True)
 
 # commenting out code that runs chlorophyll plot to use screenshots instead for sake of time left on project
 # Create a function to process and visualize the chlorophyll-a data
