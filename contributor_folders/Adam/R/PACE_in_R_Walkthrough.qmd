@@ -37,7 +37,7 @@ library(reticulate)    # Python use in R
 
 This was originally meant to follow along trying to access PACE data looked like if you are just trying to google your way into locating it. 
 
-The target audience is users that may be ccomfortable with R and working with raster or Netcdf files, but has not used NASA datasets.
+The target audience is users that may be comfortable with R and working with raster or Netcdf files, but has not used NASA/DAAC datasets or earthdata.
 
 ## Setting up Earthdata ACCESS
 

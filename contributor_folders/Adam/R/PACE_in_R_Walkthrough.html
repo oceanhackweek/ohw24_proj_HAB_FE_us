@@ -2565,7 +2565,7 @@ vertical-align: -.125em;
 <section id="pace-satellite-data-with-r" class="level1">
 <h1>PACE Satellite Data with R</h1>
 <p>This was originally meant to follow along trying to access PACE data looked like if you are just trying to google your way into locating it.</p>
-<p>The target audience is users that may be ccomfortable with R and working with raster or Netcdf files, but has not used NASA datasets.</p>
+<p>The target audience is users that may be comfortable with R and working with raster or Netcdf files, but has not used NASA/DAAC datasets or earthdata.</p>
 <section id="setting-up-earthdata-access" class="level2">
 <h2 class="anchored" data-anchor-id="setting-up-earthdata-access">Setting up Earthdata ACCESS</h2>
 <p>NASA PACE Satellite data is made accessible through the earthdata distribution platform powered by amazon AWS.</p>
@@ -2635,7 +2635,7 @@ vertical-align: -.125em;
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Search for Ocean Color Index Data</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;earthaccess.auth.Auth object at 0x783dd02ebf40&gt;</code></pre>
+<pre><code>&lt;earthaccess.auth.Auth object at 0x7dcc57edff40&gt;</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>oci_results <span class="op">=</span> earthaccess.search_datasets(instrument<span class="op">=</span><span class="st">&quot;oci&quot;</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
