@@ -53,14 +53,6 @@ elif abs((selected_dates[1] - selected_dates[0]).days) > 5:
 # run the following in terminal before spinning up the app
 # coiled login --token 48c0361f39984d7b8bab62f3252a5d7e-e6c38c5e8b15f967b104cf58ee289f4066ccd330
 
-# cluster = coiled.Cluster(
-#     n_workers=30, 
-#     workspace='esip-lab', 
-#     environ=earthaccess.auth_environ(),
-#     region="us-west-2"
-#     )
-# client = cluster.get_client()
-
 # the following code was created by the data team with a few updates 
 # for interacability, all credit goes to them
 
@@ -85,7 +77,7 @@ results = earthaccess.search_data(
     bounding_box=bbox,
     granule_name="PACE_OCI.*.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT.nc",
 )
-
+# link where this code came from: https://docs.coiled.io/blog/processing-terabyte-scale-nasa-cloud-datasets-with-coiled.html#processing-on-the-cloud-with-coiled
 @coiled.function(
     region="us-west-2",                  # Run in the same region as data
     environ=earthaccess.auth_environ(),  # Forward Earthdata auth to cloud VMs
@@ -94,19 +86,52 @@ results = earthaccess.search_data(
     cpu=1,                               # Use Single-core instances
 )
 def process(granule):
-    average_subsets = []
+    # Use dask for lazy loading
+    combined_datasets = []
     with tempfile.TemporaryDirectory() as tmpdir:
         files = earthaccess.download(granule, tmpdir)
+        # Iterate over all the datasets
         for file in files:
-            # Get index of file
-            i = files.index(file)
             # Open dataset
             ds = xr.open_dataset(file)
+            # Rechunk the dataset after loading
+            ds = ds.chunk({'lon': 'auto', 'lat': 'auto'})  # Use 'auto' or set specific sizes
+            # Subset the dataset within the specified region and append to list
             subset = ds.sel(lon=slice(-159.5, -157.5), lat=slice(27.5, 26))
-            average_subset = subset.mean(dim=['lon', 'lat'])
-            average_subset = average_subset.expand_dims(dim={"dataset_index": [i]})
-            average_subsets.append(average_subset)
-    return xr.concat(average_subsets, dim="dataset_index")
+            combined_datasets.append(subset)
 
-combined_subset = process(results)
-st.write(combined_subset)
+        # Concatenate all subsets along the 'dataset' dimension
+        combined_dataset = xr.concat(combined_datasets, dim='dataset')
+
+        # Calculate the mean Rrs value across lon and lat for each dataset
+        average_per_dataset = combined_dataset.mean(dim=['lon', 'lat']) 
+
+        # Extract wavelengths and Rrs values at once to avoid repeated computation
+        wavelengths = average_per_dataset['wavelength'].values
+        rrs_values = average_per_dataset['Rrs'].compute()  # Trigger computation for all datasets
+
+    return wavelengths, rrs_values
+
+wavelengths, rrs_values = process(results)
+
+# Assuming average_per_dataset is already created using Dask
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Create y-coordinates for each dataset
+y_indices = np.arange(rrs_values.shape[0])  # Create an array of dataset indices
+
+# Plot in 3D space using a single color (e.g., slategray)
+for dataset_index in range(rrs_values.shape[0]):
+    ax.plot(wavelengths, np.full_like(wavelengths, y_indices[dataset_index]), rrs_values[dataset_index], color='slategray')
+
+# Set axis labels
+ax.set_xlabel('Wavelength')
+ax.set_ylabel('Days since 2024-07-01')
+ax.set_zlabel('Rrs')
+
+# Rotate the plot 45 degrees along the Y-axis
+ax.view_init(elev=35, azim=-60)
+
+# Show the plot
+st.pyplot(fig)
