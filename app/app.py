@@ -9,15 +9,15 @@ import coiled
 from matplotlib.colors import LinearSegmentedColormap
 
 
+
 st.title('OceanHackWeek: Bloom and Gloom Dashboard')
 st.subheader('Application to showcase Algal Bloom Hyperspectral Data!')
 st.write('---')
 
 with st.sidebar:
     st.header('Project Overview')
-    st.subheader('Participants')
-    st.write('Data Team: Phil, Farley, Ben')
-    st.write('App Team: Adelle, Adam, Kasandra')
+    st.subheader('Project Goal')
+    st.write("Use PACE data to create user-interactive visuals")
     st.subheader('Source Data')
     st.write('PACE OCI Level-3 Global Mapped Remote-Sensing Reflectance (RRS) - NRT Data, version 2.0, NASA Earthdata')
     st.write('---')
@@ -67,7 +67,7 @@ results = earthaccess.search_data(
     short_name="PACE_OCI_L3M_RRS_NRT",
     temporal=tspan,
     bounding_box=bbox,
-    granule_name="PACE_OCI.20240701.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT",
+    granule_name="PACE_OCI.20240701.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT.nc",
 )
 
 paths = earthaccess.open(results)
