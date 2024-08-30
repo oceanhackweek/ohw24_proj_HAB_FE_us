@@ -18,7 +18,7 @@ st.subheader('Application to showcase Algal Bloom and Harmful Algal Bloom Data!'
 st.write('---')
 
 with st.sidebar:
-    st.heder('Project Overview')
+    st.header('Project Overview')
 
     st.subheader('Project Goal')
     st.write("Use PACE data to create user-interactive visuals")
@@ -29,11 +29,11 @@ with st.sidebar:
     ### TODO - finish this
 
     selected_dates = st.date_input(
-        'Select a Date Range', 
-        value = (datetime.date(2024, 7, 1), datetime.date(2024, 7, 2)), 
-        min_value = datetime.date(2024, 7, 1), 
-        max_value = datetime.date(2024, 8, 25), 
-        format = "YYYY-MM-DD", 
+        'Select a Date Range',
+        value = (datetime.date(2024, 7, 1), datetime.date(2024, 7, 2)),
+        min_value = datetime.date(2024, 7, 1),
+        max_value = datetime.date(2024, 8, 25),
+        format = "YYYY-MM-DD",
         label_visibility = "visible"
         )
 
@@ -47,7 +47,7 @@ elif abs((selected_dates[1] - selected_dates[0]).days) > 5:
 # run the following in terminal before spinning up the app
 # coiled login --token 48c0361f39984d7b8bab62f3252a5d7e-e6c38c5e8b15f967b104cf58ee289f4066ccd330
 
-# the following code was created by the respective data team with a few updates 
+# the following code was created by the respective data team with a few updates
 # for interacability, all credit goes to them
 
 # .netrc file is required for authentication (Please fill out with your earthdata login credentials)
@@ -78,7 +78,6 @@ results = earthaccess.search_data(
     spot_policy="spot_with_fallback",    # Use spot instances when available
     arm=True,                            # Use ARM-based instances
     cpu=1,                               # Use Single-core instances
-    granule_name="PACE_OCI.20240701.L3m.DAY.RRS.V2_0.Rrs.0p1deg.NRT.nc",
 )
 def process(granule):
     # Use dask for lazy loading
@@ -99,7 +98,7 @@ def process(granule):
         combined_dataset = xr.concat(combined_datasets, dim='dataset')
 
         # Calculate the mean Rrs value across lon and lat for each dataset
-        average_per_dataset = combined_dataset.mean(dim=['lon', 'lat']) 
+        average_per_dataset = combined_dataset.mean(dim=['lon', 'lat'])
 
         # Extract wavelengths and Rrs values at once to avoid repeated computation
         wavelengths = average_per_dataset['wavelength'].values
