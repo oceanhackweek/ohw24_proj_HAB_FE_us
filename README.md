@@ -21,6 +21,8 @@ The goal is to create an app that will use Streamlit to make it easy to view and
 * streamlit.com
 * https://github.com/oceanhackweek/ohw24_proj_pace_us
 
+#### To run this application: `streamlit run --server.runOnSave true app/app.py`
+
 ## This README includes instructions on how to spin up your very own Streamlit app locally. 
 #### Unfortunately, we were not able to figure out how to run this in JupyterHub
 
@@ -38,8 +40,8 @@ or
    b. `conda env create -f environment.yml`
    c. `conda activate ohw-streamlit`
 3. Create `streamlit.py` which you can name whatever you want
-4. Add your code!
-5. Run `streamlit run streamlit.py` or update to use your file name
+4. Examples in the tutorial here: https://github.com/oceanhackweek/ohw24_proj_HAB_FE_us/tree/main/tutorial
+5. Add your code!
+6. Run `streamlit run streamlit.py` or update to use your file name
    If you would like the app to update every time you save (this is good for debugging) run `streamlit run --server.runOnSave true streamlit.py`
 
-#### To run this application: `streamlit run --server.runOnSave true app/app.py`
